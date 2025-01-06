@@ -1,5 +1,9 @@
 package ca.bungo.renderer.data;
 
+import ca.bungo.utility.NetworkUtility;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +13,7 @@ public class PlayerData {
     String playerUUID;
 
     final List<String> playerNotes;
+    private String hash = null;
 
     public PlayerData(String playerUsername, String playerUUID) {
         this.playerUsername = playerUsername;
@@ -35,12 +40,21 @@ public class PlayerData {
     }
 
     private void fetchPlayerNotes() {
-        //ToDo: Create some web service or something for player notes and things?
-        new Thread(() -> {
-            synchronized (playerNotes) {
-                playerNotes.clear();
-            }
-        }).start();
+        try {
+            NetworkUtility.getHash(NetworkUtility.NoteType.PLAYER).thenAccept(hash -> {
+               if(this.hash == null || !this.hash.equals(hash)) {
+                   try {
+                       this.hash = hash;
+                       playerNotes.clear();
+                       NetworkUtility.getTypedNotes(NetworkUtility.NoteType.PLAYER, playerUUID).thenAccept(playerNotes::addAll);
+                   } catch (URISyntaxException | IOException | InterruptedException e) {
+                       throw new RuntimeException(e);
+                   }
+               }
+            });
+        } catch (URISyntaxException | IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public List<String> getPlayerNotes() {

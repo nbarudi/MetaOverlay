@@ -5,4 +5,5 @@ import java.awt.*;
 
 public interface Renderable {
     void renderObject(Graphics g, int windowWidth, int windowHeight);
+    void toggleRendered();
 }

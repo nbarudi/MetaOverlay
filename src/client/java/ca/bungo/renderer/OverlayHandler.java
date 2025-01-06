@@ -1,6 +1,7 @@
 package ca.bungo.renderer;
 
 import ca.bungo.renderer.components.PlayerInfoComponent;
+import ca.bungo.renderer.components.StageNotesComponent;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.WinUser;
@@ -20,9 +21,8 @@ public class OverlayHandler {
     public static final List<Renderable> renderableList = new ArrayList<>();
 
     private static void registerRenderables() {
-
         renderableList.add(new PlayerInfoComponent());
-
+        renderableList.add( new StageNotesComponent());
     }
 
     public static void addRenderable(Renderable r) {

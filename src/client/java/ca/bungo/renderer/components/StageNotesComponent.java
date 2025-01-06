@@ -1,47 +1,33 @@
 package ca.bungo.renderer.components;
 
 import ca.bungo.renderer.Renderable;
-import ca.bungo.renderer.data.PlayerData;
-import ca.bungo.utility.PlayerUtility;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.player.PlayerEntity;
+import ca.bungo.renderer.data.ServerData;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 
-public class PlayerInfoComponent implements Renderable {
+public class StageNotesComponent implements Renderable {
 
     int componentWidth = 500;
-    int componentHeight = -1;
 
-    int basePosX = 5;
+    int basePosX = 0;
     int basePosY = 15;
 
-    public static boolean isRendered = true;
+    private ServerData serverData;
+    public static boolean isRendered = false;
 
-    private PlayerData activePlayerData = null;
-
-    public PlayerInfoComponent() {
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            PlayerEntity player = PlayerUtility.getTargetPlayer(client, 30);
-
-            if(player == null) {
-                activePlayerData = null;
-                return;
-            }
-
-            if(activePlayerData == null || !activePlayerData.getPlayerUUID().equals(player.getUuidAsString()))
-                activePlayerData = new PlayerData(player.getName().getString(), player.getUuidAsString());
-        });
+    public StageNotesComponent() {
+        serverData = new ServerData();
+        new Timer(50, e -> {
+            serverData.updateDataIfNeeded();
+        }).start();
     }
 
     @Override
     public void renderObject(Graphics g, int windowWidth, int windowHeight) {
-        if (activePlayerData == null || !isRendered) return;
-        MinecraftClient mc = MinecraftClient.getInstance();
-
+        if(serverData == null || !isRendered) return;
+        basePosX = windowWidth - componentWidth - 5;
         Graphics2D g2d = (Graphics2D) g;
 
         g.setColor(new Color(50, 50, 50, 160));
@@ -56,26 +42,13 @@ public class PlayerInfoComponent implements Renderable {
         // Set font and color
         g2d.setColor(Color.WHITE);
         FontMetrics metrics = g2d.getFontMetrics();
-
         int scaledWidth = (int)(componentWidth/1.5f);
 
-        // Draw wrapped text for username
-        offset = drawWrappedText(g2d, "Player Username: " + activePlayerData.getPlayerUsername(), basePosX, offset, metrics, scaledWidth);
-
-        // Draw wrapped text for UUID
-        offset = drawWrappedText(g2d, "Player UUID: " + activePlayerData.getPlayerUUID(), basePosX, offset, metrics, scaledWidth);
-
-        // Restore original transform
-        //g2d.setTransform(ogTransform);
-
-        // Additional content
         g2d.setColor(Color.WHITE);
-        offset += 20;
-        g2d.drawString("Player Notes:", basePosX, offset);
-        offset += 20;
+        offset = drawWrappedText(g2d, "Stage Notes:", (int) (basePosX/1.5f), offset, metrics, scaledWidth);
 
-        for(String note : activePlayerData.getPlayerNotes()) {
-            offset = drawWrappedText(g2d, note, basePosX, offset, metrics, scaledWidth);
+        for(String message : serverData.getServerData()){
+            offset = drawWrappedText(g2d, message, (int) (basePosX/1.5f), offset, metrics, scaledWidth);
         }
         g2d.setTransform(ogTransform);
     }
@@ -84,6 +57,7 @@ public class PlayerInfoComponent implements Renderable {
     public void toggleRendered() {
         isRendered = !isRendered;
     }
+
 
     /**
      * Draws wrapped text within the specified width.
@@ -123,5 +97,6 @@ public class PlayerInfoComponent implements Renderable {
 
         return y; // Return updated Y-coordinate
     }
+
 
 }

@@ -1,5 +1,6 @@
 package ca.bungo;
 
+import ca.bungo.keybinding.ToggleKeybinds;
 import ca.bungo.renderer.OverlayHandler;
 import com.mojang.authlib.minecraft.client.MinecraftClient;
 import com.sun.jna.platform.win32.User32;
@@ -16,7 +17,9 @@ public class MetaOverlayClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
+		System.setProperty("java.awt.headless", "false");
 		new Thread(OverlayHandler::initializeOverlay).start();
+		ToggleKeybinds.initKeybinds();
 	}
 
 }
