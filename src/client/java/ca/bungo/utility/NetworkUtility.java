@@ -19,7 +19,6 @@ import java.util.concurrent.CompletableFuture;
 public class NetworkUtility {
 
     private static final String NOTE_API_URL = "http://localhost:5000/notes/";
-    private static final String HASH_API_URL = "http://localhost:5000/hash/";
 
     private static final Gson gson = new Gson();
 
@@ -37,19 +36,6 @@ public class NetworkUtility {
             return client.sendAsync(postRequest, HttpResponse.BodyHandlers.ofString()).thenApply(
                     HttpResponse::body
             ).thenApply((body) -> Arrays.asList(gson.fromJson(body, String[].class)));
-        }
-    }
-
-    public static CompletableFuture<String> getHash(NoteType noteType) throws URISyntaxException, IOException, InterruptedException{
-        try(HttpClient client = HttpClient.newHttpClient()){
-            HttpRequest postRequest = HttpRequest.newBuilder()
-                    .uri(new URI(HASH_API_URL + noteType.name().toUpperCase() + "/"))
-                    .GET()
-                    .timeout(Duration.ofSeconds(10))
-                    .build();
-            return client.sendAsync(postRequest, HttpResponse.BodyHandlers.ofString()).thenApply(
-                    HttpResponse::body
-            );
         }
     }
 

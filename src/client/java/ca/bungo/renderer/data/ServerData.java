@@ -2,6 +2,7 @@ package ca.bungo.renderer.data;
 
 import ca.bungo.renderer.components.StageNotesComponent;
 import ca.bungo.utility.NetworkUtility;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -20,21 +21,17 @@ public class ServerData {
 
     public void updateDataIfNeeded() {
         try {
-            NetworkUtility.getHash(NetworkUtility.NoteType.STAGE).thenAccept(hash -> {
-                if(this.hash == null || !this.hash.equals(hash)) {
-                    StageNotesComponent.isRendered = true;
-                    try {
-                        synchronized (this) {
-                            this.hash = hash;
-                            serverData.clear();
-                            NetworkUtility.getTypedNotes(NetworkUtility.NoteType.STAGE, "dummy").thenAccept(serverData::addAll);
-                        }
-                    } catch (URISyntaxException | IOException | InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            });
 
+            synchronized (this) {
+                NetworkUtility.getTypedNotes(NetworkUtility.NoteType.STAGE, "dummy").thenAccept((result) -> {
+                    if(result == null) return;
+                    if(beenUpdated(result)) { //Data Been updated? Let's force show then Menu and update the list
+                        StageNotesComponent.isRendered = true;
+                        serverData.clear();
+                        serverData.addAll(result);
+                    }
+                });
+            }
         } catch (URISyntaxException | IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -43,6 +40,14 @@ public class ServerData {
 
     public List<String> getServerData() {
         return serverData;
+    }
+
+    private boolean beenUpdated(@NotNull List<String> result) {
+        if(result.size() != serverData.size()) return true;
+        for(String s : result) {
+            if(!serverData.contains(s)) return true;
+        }
+        return false;
     }
 
 

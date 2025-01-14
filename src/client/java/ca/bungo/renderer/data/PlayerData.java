@@ -13,7 +13,6 @@ public class PlayerData {
     String playerUUID;
 
     final List<String> playerNotes;
-    private String hash = null;
 
     public PlayerData(String playerUsername, String playerUUID) {
         this.playerUsername = playerUsername;
@@ -41,16 +40,15 @@ public class PlayerData {
 
     private void fetchPlayerNotes() {
         try {
-            NetworkUtility.getHash(NetworkUtility.NoteType.PLAYER).thenAccept(hash -> {
-               if(this.hash == null || !this.hash.equals(hash)) {
-                   try {
-                       this.hash = hash;
-                       playerNotes.clear();
-                       NetworkUtility.getTypedNotes(NetworkUtility.NoteType.PLAYER, playerUUID).thenAccept(playerNotes::addAll);
-                   } catch (URISyntaxException | IOException | InterruptedException e) {
-                       throw new RuntimeException(e);
-                   }
-               }
+            NetworkUtility.getTypedNotes(NetworkUtility.NoteType.PLAYER, playerUUID).thenAccept((notes) -> {
+                synchronized (playerNotes) {
+                    if(playerNotes.isEmpty()) {
+                        playerNotes.addAll(notes);
+                    } else {
+                        playerNotes.clear();
+                        playerNotes.addAll(notes);
+                    }
+                }
             });
         } catch (URISyntaxException | IOException | InterruptedException e) {
             throw new RuntimeException(e);
