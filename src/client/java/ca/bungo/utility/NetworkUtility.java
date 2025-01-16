@@ -18,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class NetworkUtility {
 
-    private static final String NOTE_API_URL = "http://localhost:5000/notes/";
+    private static final String NOTE_API_URL = "https://metaoverlayapi.sneakyrp.com/notes/";
 
     private static final Gson gson = new Gson();
 
@@ -31,7 +31,7 @@ public class NetworkUtility {
             HttpRequest postRequest = HttpRequest.newBuilder()
                     .uri(new URI(NOTE_API_URL + noteType.name().toUpperCase() + "/" + data))
                     .GET()
-                    .timeout(Duration.ofSeconds(10))
+                    .timeout(Duration.ofMinutes(5))
                     .build();
             return client.sendAsync(postRequest, HttpResponse.BodyHandlers.ofString()).thenApply(
                     HttpResponse::body

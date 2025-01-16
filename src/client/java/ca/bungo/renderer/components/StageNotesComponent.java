@@ -1,5 +1,7 @@
 package ca.bungo.renderer.components;
 
+import ca.bungo.MetaOverlay;
+import ca.bungo.MetaOverlayClient;
 import ca.bungo.renderer.Renderable;
 import ca.bungo.renderer.data.ServerData;
 
@@ -14,13 +16,19 @@ public class StageNotesComponent implements Renderable {
     int basePosX = 0;
     int basePosY = 15;
 
-    private ServerData serverData;
+    private final ServerData serverData;
     public static boolean isRendered = false;
 
     public StageNotesComponent() {
         serverData = new ServerData();
-        new Timer(50, e -> {
-            serverData.updateDataIfNeeded();
+        startDataUpdateThread();
+    }
+
+    private void startDataUpdateThread(){
+        new Thread(() -> {
+            while(true) {
+                serverData.updateDataIfNeeded();
+            }
         }).start();
     }
 
