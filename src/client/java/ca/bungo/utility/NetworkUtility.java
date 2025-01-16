@@ -1,6 +1,7 @@
 package ca.bungo.utility;
 
 import ca.bungo.MetaOverlay;
+import ca.bungo.utility.config.ModConfigs;
 import com.google.gson.Gson;
 import com.mojang.authlib.minecraft.client.ObjectMapper;
 
@@ -18,7 +19,9 @@ import java.util.concurrent.CompletableFuture;
 
 public class NetworkUtility {
 
-    private static final String NOTE_API_URL = "https://metaoverlayapi.sneakyrp.com/notes/";
+    //To Be Fetched with Configs
+    private static final String NOTE_API_URL = ModConfigs.API_URL;
+    private static final String PASSWORD = ModConfigs.API_PASSWORD;
 
     private static final Gson gson = new Gson();
 
@@ -29,7 +32,7 @@ public class NetworkUtility {
     public static CompletableFuture<List<String>> getTypedNotes(NoteType noteType, String data) throws URISyntaxException, IOException, InterruptedException{
         try(HttpClient client = HttpClient.newHttpClient()){
             HttpRequest postRequest = HttpRequest.newBuilder()
-                    .uri(new URI(NOTE_API_URL + noteType.name().toUpperCase() + "/" + data))
+                    .uri(new URI(NOTE_API_URL + "/" + noteType.name().toUpperCase() + "/" + data + "?password=" + PASSWORD))
                     .GET()
                     .timeout(Duration.ofMinutes(5))
                     .build();
