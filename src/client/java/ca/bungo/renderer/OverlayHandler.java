@@ -52,20 +52,27 @@ public class OverlayHandler {
                 @Override
                 protected void paintComponent(Graphics g) {
                     super.paintComponent(g);
-
                     MinecraftClient mc = MinecraftClient.getInstance();
                     if (mc != null && mc.getWindow() != null) {
+                        panel.removeAll();
                         List<Renderable> currentRenderables;
                         synchronized (renderableList) {
                             currentRenderables = new ArrayList<>(renderableList);
                         }
                         for (Renderable renderable : currentRenderables) {
                             renderable.renderObject(g, frame.getBounds().width, frame.getBounds().height);
+                            for (JTextPane label : renderable.getLabels()) {
+                                panel.add(label);
+                            }
                         }
+
+                        panel.revalidate();
+                        panel.repaint();
                     }
                 }
             };
             panel.setOpaque(false);
+            panel.setLayout(null);
 
             frame.add(panel);
             frame.setVisible(true);

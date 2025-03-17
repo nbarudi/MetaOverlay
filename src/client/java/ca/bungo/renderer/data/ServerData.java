@@ -24,12 +24,14 @@ public class ServerData {
         try {
             synchronized (this) {
                 List<String> result = NetworkUtility.getTypedNotes(NetworkUtility.NoteType.STAGE, isFirst ? "immediate" : "poll").get();
+                if(updateFailCounter > 0) { //Reset on successful connection
+                    updateFailCounter = 0;
+                }
                 if(result == null) return;
                 StageNotesComponent.isRendered = true;
                 serverData.clear();
                 serverData.addAll(result);
             }
-
         } catch (URISyntaxException | IOException | InterruptedException | ExecutionException e) {
             MetaOverlay.LOGGER.error(e.getMessage());
             updateFailCounter++;

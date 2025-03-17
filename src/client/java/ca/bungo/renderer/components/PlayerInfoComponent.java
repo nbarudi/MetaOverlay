@@ -11,6 +11,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PlayerInfoComponent implements Renderable {
@@ -24,6 +26,8 @@ public class PlayerInfoComponent implements Renderable {
     public static boolean isRendered = true;
 
     private PlayerData activePlayerData = null;
+
+    private List<JTextPane> labels = new ArrayList<>();
 
     public PlayerInfoComponent() {
         final int[] timeTracker = {0};
@@ -46,47 +50,54 @@ public class PlayerInfoComponent implements Renderable {
         });
     }
 
+    public List<JTextPane> getLabels() {
+        return labels;
+    }
+
     @Override
     public void renderObject(Graphics g, int windowWidth, int windowHeight) {
+        labels.clear();
         if (activePlayerData == null || !isRendered) return;
-        MinecraftClient mc = MinecraftClient.getInstance();
-
-        Graphics2D g2d = (Graphics2D) g;
 
         g.setColor(new Color(50, 50, 50, 160));
         g.fillRect(basePosX, basePosY, componentWidth, windowHeight-basePosY);
 
         int offset = basePosY + 10;
 
-        // Save original transform for scaling
-        AffineTransform ogTransform = g2d.getTransform();
-        g2d.scale(1.5, 1.5);
+        /*
+        JTextPane playerUsername = createTextPane(
+                "<html>" +
+                        "<body style='font-size: 16px;color: white;font-family: sans-serif;'>" +
+                        "<b>Player Username: " + activePlayerData.getPlayerUsername() + "</b>" +
+                        "</body>" +
+                        "</html>", componentWidth);
+        playerUsername.setForeground(Color.WHITE);
+        playerUsername.setBounds(basePosX, offset, componentWidth, playerUsername.getPreferredSize().height);
+        labels.add(playerUsername);
 
-        // Set font and color
-        g2d.setColor(Color.WHITE);
-        FontMetrics metrics = g2d.getFontMetrics();
+        offset += playerUsername.getPreferredSize().height + 10;
 
-        int scaledWidth = (int)(componentWidth/1.5f);
+        JTextPane playerUUID = createTextPane(
+                "<html>" +
+                        "<body style='font-size: 16px;color: white;font-family: sans-serif;'>" +
+                        "<b>Player UUID: " + activePlayerData.getPlayerUUID() + "</b>" +
+                        "</body>" +
+                        "</html>", componentWidth);
+        playerUUID.setForeground(Color.WHITE);
+        playerUUID.setBounds(basePosX, offset, componentWidth, playerUUID.getPreferredSize().height);
+        labels.add(playerUUID);
 
-        // Draw wrapped text for username
-        offset = drawWrappedText(g2d, "Player Username: " + activePlayerData.getPlayerUsername(), basePosX, offset, metrics, scaledWidth);
+        offset += playerUUID.getPreferredSize().height + 10;*/
 
-        // Draw wrapped text for UUID
-        offset = drawWrappedText(g2d, "Player UUID: " + activePlayerData.getPlayerUUID(), basePosX, offset, metrics, scaledWidth);
 
-        // Restore original transform
-        //g2d.setTransform(ogTransform);
-
-        // Additional content
-        g2d.setColor(Color.WHITE);
-        offset += 20;
-        g2d.drawString("Player Notes:", basePosX, offset);
-        offset += 20;
-
-        for(String note : activePlayerData.getPlayerNotes()) {
-            offset = drawWrappedText(g2d, note, basePosX, offset, metrics, scaledWidth);
+        for(String message : activePlayerData.getPlayerNotes()){
+            JTextPane label = createTextPane("<html><body style='font-size: 14px;color: white;font-family: sans-serif;'>" + message + "</body></html>", componentWidth);
+            label.setForeground(Color.WHITE);
+            label.setBounds(basePosX, offset, componentWidth, label.getHeight());
+            labels.add(label);
+            offset += label.getPreferredSize().height + 10;
         }
-        g2d.setTransform(ogTransform);
+
     }
 
     @Override
@@ -95,44 +106,21 @@ public class PlayerInfoComponent implements Renderable {
     }
 
     /**
-     * Draws wrapped text within the specified width.
+     * Creates a JTextPane with the specified HTML content and width.
      *
-     * @param g2d       Graphics2D object for rendering
-     * @param text      The text to render
-     * @param x         X-coordinate for the text
-     * @param y         Starting Y-coordinate for the text
-     * @param metrics   FontMetrics for measuring text
-     * @param maxWidth  Maximum width for wrapping text
-     * @return The updated Y-coordinate after rendering the text
+     * @param htmlContent The HTML content to display
+     * @param width       The width of the text pane
+     * @return The configured JTextPane
      */
-    private int drawWrappedText(Graphics2D g2d, String text, int x, int y, FontMetrics metrics, int maxWidth) {
-        int lineHeight = metrics.getHeight();
-        String[] words = text.split(" ");
-        StringBuilder line = new StringBuilder();
-
-        for (String word : words) {
-            if(word.isEmpty())
-                word = "\n";
-            String testLine = line + (line.length() > 0 ? " " : "") + word;
-            int testWidth = metrics.stringWidth(testLine);
-
-            if (testWidth > maxWidth) {
-                // Draw the current line and reset
-                g2d.drawString(line.toString(), x, y);
-                line = new StringBuilder(word);
-                y += lineHeight;
-            } else {
-                line.append((line.length() > 0 ? " " : "")).append(word);
-            }
-        }
-
-        // Draw the last line
-        if (line.length() > 0) {
-            g2d.drawString(line.toString(), x, y);
-            y += lineHeight;
-        }
-
-        return y; // Return updated Y-coordinate
+    private JTextPane createTextPane(String htmlContent, int width) {
+        JTextPane textPane = new JTextPane();
+        textPane.setContentType("text/html");
+        textPane.setText(htmlContent);
+        textPane.setEditable(false);
+        textPane.setOpaque(false);
+        textPane.setForeground(Color.WHITE);
+        textPane.setSize(width, Short.MAX_VALUE); // Allow the text pane to grow vertically
+        return textPane;
     }
 
 }

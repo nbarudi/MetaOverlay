@@ -43,7 +43,8 @@ public class NetworkUtility {
                 MetaOverlay.LOGGER.info(body);
                 if(body.contains("error code: 524"))
                     return null;
-                return Arrays.asList(gson.fromJson(body, String[].class));
+                //return Arrays.asList(gson.fromJson(body, String[].class));
+                return List.of(body);
             });
         }
     }
