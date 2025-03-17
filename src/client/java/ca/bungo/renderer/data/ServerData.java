@@ -14,6 +14,8 @@ public class ServerData {
 
     private final List<String> serverData;
 
+    private static int updateFailCounter = 0;
+
     public ServerData() {
         serverData = new ArrayList<>();
     }
@@ -30,6 +32,14 @@ public class ServerData {
 
         } catch (URISyntaxException | IOException | InterruptedException | ExecutionException e) {
             MetaOverlay.LOGGER.error(e.getMessage());
+            updateFailCounter++;
+            int delay = (int) (1000 * Math.pow(2, updateFailCounter));
+            if(delay > 300000)
+                delay = 300000; // 5 minute max delay
+            MetaOverlay.LOGGER.error("Failed to make connection to server.. Delaying for {} second(s)", delay/1000);
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException ignored) {}
         }
     }
 

@@ -1,10 +1,12 @@
 package ca.bungo.renderer.data;
 
+import ca.bungo.MetaOverlay;
 import ca.bungo.utility.NetworkUtility;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class PlayerData {
@@ -19,7 +21,7 @@ public class PlayerData {
         this.playerUUID = playerUUID;
 
         playerNotes = new ArrayList<>();
-        fetchPlayerNotes();
+        new Thread(this::fetchPlayerNotes).start();
     }
 
     public String getPlayerUsername() {
@@ -51,7 +53,9 @@ public class PlayerData {
                 }
             });
         } catch (URISyntaxException | IOException | InterruptedException e) {
-            throw new RuntimeException(e);
+            MetaOverlay.LOGGER.error(e.getMessage());
+            MetaOverlay.LOGGER.error(Arrays.toString(e.getStackTrace()));
+            MetaOverlay.LOGGER.info("Failed to fetch player notes from {}", playerUUID);
         }
     }
 

@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.mojang.authlib.minecraft.client.ObjectMapper;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -40,8 +41,8 @@ public class NetworkUtility {
                     HttpResponse::body
             ).thenApply((body) -> {
                 MetaOverlay.LOGGER.info(body);
-                if(body.contains("error code:"))
-                    return List.of();
+                if(body.contains("error code: 524"))
+                    return null;
                 return Arrays.asList(gson.fromJson(body, String[].class));
             });
         }

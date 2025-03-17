@@ -3,6 +3,7 @@ package ca.bungo.renderer.components;
 import ca.bungo.renderer.Renderable;
 import ca.bungo.renderer.data.PlayerData;
 import ca.bungo.utility.PlayerUtility;
+import ca.bungo.utility.config.ModConfigs;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
@@ -10,6 +11,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class PlayerInfoComponent implements Renderable {
 
@@ -24,15 +26,22 @@ public class PlayerInfoComponent implements Renderable {
     private PlayerData activePlayerData = null;
 
     public PlayerInfoComponent() {
+        final int[] timeTracker = {0};
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             PlayerEntity player = PlayerUtility.getTargetPlayer(client, 30);
 
-            if(player == null) {
+            if(player == null && timeTracker[0] >= ModConfigs.ACTIVE_PLAYER_SECONDS*20) { //Not looking at a player - Count down until hiding
                 activePlayerData = null;
+                timeTracker[0] = 0;
+                return;
+            }
+            else if(player == null){ //If I'm looking at a player, don't want a countdown
+                timeTracker[0]++;
                 return;
             }
 
-            if(activePlayerData == null || !activePlayerData.getPlayerUUID().equals(player.getUuidAsString()))
+            timeTracker[0] = 0;
+            if(activePlayerData == null || !activePlayerData.getPlayerUUID().equals(player.getUuidAsString())) //Count down ended || looked at a new player - reload the notes
                 activePlayerData = new PlayerData(player.getName().getString(), player.getUuidAsString());
         });
     }
