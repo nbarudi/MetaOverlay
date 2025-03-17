@@ -38,7 +38,12 @@ public class NetworkUtility {
                     .build();
             return client.sendAsync(postRequest, HttpResponse.BodyHandlers.ofString()).thenApply(
                     HttpResponse::body
-            ).thenApply((body) -> Arrays.asList(gson.fromJson(body, String[].class)));
+            ).thenApply((body) -> {
+                MetaOverlay.LOGGER.info(body);
+                if(body.contains("error code:"))
+                    return List.of();
+                return Arrays.asList(gson.fromJson(body, String[].class));
+            });
         }
     }
 

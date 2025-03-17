@@ -19,6 +19,8 @@ public class StageNotesComponent implements Renderable {
     private final ServerData serverData;
     public static boolean isRendered = false;
 
+    private boolean isFirst = true;
+
     public StageNotesComponent() {
         serverData = new ServerData();
         startDataUpdateThread();
@@ -27,7 +29,9 @@ public class StageNotesComponent implements Renderable {
     private void startDataUpdateThread(){
         new Thread(() -> {
             while(true) {
-                serverData.updateDataIfNeeded();
+                serverData.updateDataIfNeeded(isFirst);
+                if(isFirst)
+                    isFirst = false;
             }
         }).start();
     }
@@ -84,6 +88,8 @@ public class StageNotesComponent implements Renderable {
         StringBuilder line = new StringBuilder();
 
         for (String word : words) {
+            if(word.isEmpty())
+                word = "\n";
             String testLine = line + (line.length() > 0 ? " " : "") + word;
             int testWidth = metrics.stringWidth(testLine);
 

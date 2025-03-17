@@ -102,6 +102,8 @@ public class PlayerInfoComponent implements Renderable {
         StringBuilder line = new StringBuilder();
 
         for (String word : words) {
+            if(word.isEmpty())
+                word = "\n";
             String testLine = line + (line.length() > 0 ? " " : "") + word;
             int testWidth = metrics.stringWidth(testLine);
 

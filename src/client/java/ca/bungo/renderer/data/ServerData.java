@@ -18,10 +18,10 @@ public class ServerData {
         serverData = new ArrayList<>();
     }
 
-    public void updateDataIfNeeded() {
+    public void updateDataIfNeeded(boolean isFirst) {
         try {
             synchronized (this) {
-                List<String> result = NetworkUtility.getTypedNotes(NetworkUtility.NoteType.STAGE, "dummy").get();
+                List<String> result = NetworkUtility.getTypedNotes(NetworkUtility.NoteType.STAGE, isFirst ? "immediate" : "poll").get();
                 if(result == null) return;
                 StageNotesComponent.isRendered = true;
                 serverData.clear();
