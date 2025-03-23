@@ -24,8 +24,6 @@ public class NetworkUtility {
     private static final String NOTE_API_URL = ModConfigs.API_URL;
     private static final String PASSWORD = ModConfigs.API_PASSWORD;
 
-    private static final Gson gson = new Gson();
-
     public enum NoteType{
         STAGE, PLAYER;
     }
@@ -40,7 +38,6 @@ public class NetworkUtility {
             return client.sendAsync(postRequest, HttpResponse.BodyHandlers.ofString()).thenApply(
                     HttpResponse::body
             ).thenApply((body) -> {
-                MetaOverlay.LOGGER.info(body);
                 if(body.contains("error code: 524"))
                     return null;
                 //return Arrays.asList(gson.fromJson(body, String[].class));
