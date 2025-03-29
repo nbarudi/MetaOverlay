@@ -25,7 +25,7 @@ public class NetworkUtility {
     private static final String PASSWORD = ModConfigs.API_PASSWORD;
 
     public enum NoteType{
-        STAGE, PLAYER;
+        STAGE, PLAYER, CHARACTER;
     }
 
     public static CompletableFuture<List<String>> getTypedNotes(NoteType noteType, String data) throws URISyntaxException, IOException, InterruptedException{
@@ -40,7 +40,6 @@ public class NetworkUtility {
             ).thenApply((body) -> {
                 if(body.contains("error code: 524"))
                     return null;
-                //return Arrays.asList(gson.fromJson(body, String[].class));
                 return List.of(body);
             });
         }

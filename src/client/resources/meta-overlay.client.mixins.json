@@ -2,7 +2,9 @@
 	"required": true,
 	"package": "ca.bungo.mixin.client",
 	"compatibilityLevel": "JAVA_21",
-	"client": [],
+	"client": [
+		"ChatHudMixin"
+	],
 	"injectors": {
 		"defaultRequire": 1
 	}

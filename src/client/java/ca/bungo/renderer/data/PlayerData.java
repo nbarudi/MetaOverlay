@@ -1,7 +1,11 @@
 package ca.bungo.renderer.data;
 
 import ca.bungo.MetaOverlay;
+import ca.bungo.renderer.components.PlayerInfoComponent;
 import ca.bungo.utility.NetworkUtility;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.ChatScreen;
+import net.minecraft.client.gui.screen.Screen;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -21,6 +25,21 @@ public class PlayerData {
         this.playerUUID = playerUUID;
 
         playerNotes = new ArrayList<>();
+
+        /*MinecraftClient.getInstance().execute(()->{
+            ChatScreen screen = new ChatScreen("");
+            Screen prevScreen = MinecraftClient.getInstance().currentScreen;
+            MinecraftClient.getInstance().setScreen(screen);
+            screen.sendMessage("/metaoverlayhelper charid " + this.playerUUID, true);
+            MinecraftClient.getInstance().setScreen(prevScreen);
+        });*/
+
+        ChatScreen screen = new ChatScreen("");
+        Screen prevScreen = MinecraftClient.getInstance().currentScreen;
+        MinecraftClient.getInstance().setScreen(screen);
+        screen.sendMessage("/metaoverlayhelper charid " + this.playerUUID, true);
+        MinecraftClient.getInstance().setScreen(prevScreen);
+
         new Thread(this::fetchPlayerNotes).start();
     }
 
@@ -42,7 +61,10 @@ public class PlayerData {
 
     private void fetchPlayerNotes() {
         try {
-            NetworkUtility.getTypedNotes(NetworkUtility.NoteType.PLAYER, playerUUID).thenAccept((notes) -> {
+            NetworkUtility.NoteType type = NetworkUtility.NoteType.PLAYER;
+            if(!PlayerInfoComponent.lastFoundCharID.isEmpty())
+                type = NetworkUtility.NoteType.CHARACTER;
+            NetworkUtility.getTypedNotes(type, playerUUID).thenAccept((notes) -> {
                 synchronized (playerNotes) {
                     if(playerNotes.isEmpty()) {
                         playerNotes.addAll(notes);

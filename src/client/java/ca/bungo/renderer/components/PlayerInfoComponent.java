@@ -24,6 +24,7 @@ public class PlayerInfoComponent implements Renderable {
     int basePosY = 15;
 
     public static boolean isRendered = true;
+    public static String lastFoundCharID = "";
 
     private PlayerData activePlayerData = null;
 
@@ -45,8 +46,10 @@ public class PlayerInfoComponent implements Renderable {
             }
 
             timeTracker[0] = 0;
-            if(activePlayerData == null || !activePlayerData.getPlayerUUID().equals(player.getUuidAsString())) //Count down ended || looked at a new player - reload the notes
+            if(activePlayerData == null || !activePlayerData.getPlayerUUID().equals(player.getUuidAsString())) {//Count down ended || looked at a new player - reload the notes
+                lastFoundCharID = "";
                 activePlayerData = new PlayerData(player.getName().getString(), player.getUuidAsString());
+            }
         });
     }
 
@@ -63,32 +66,6 @@ public class PlayerInfoComponent implements Renderable {
         g.fillRect(basePosX, basePosY, componentWidth, windowHeight-basePosY);
 
         int offset = basePosY + 10;
-
-        /*
-        JTextPane playerUsername = createTextPane(
-                "<html>" +
-                        "<body style='font-size: 16px;color: white;font-family: sans-serif;'>" +
-                        "<b>Player Username: " + activePlayerData.getPlayerUsername() + "</b>" +
-                        "</body>" +
-                        "</html>", componentWidth);
-        playerUsername.setForeground(Color.WHITE);
-        playerUsername.setBounds(basePosX, offset, componentWidth, playerUsername.getPreferredSize().height);
-        labels.add(playerUsername);
-
-        offset += playerUsername.getPreferredSize().height + 10;
-
-        JTextPane playerUUID = createTextPane(
-                "<html>" +
-                        "<body style='font-size: 16px;color: white;font-family: sans-serif;'>" +
-                        "<b>Player UUID: " + activePlayerData.getPlayerUUID() + "</b>" +
-                        "</body>" +
-                        "</html>", componentWidth);
-        playerUUID.setForeground(Color.WHITE);
-        playerUUID.setBounds(basePosX, offset, componentWidth, playerUUID.getPreferredSize().height);
-        labels.add(playerUUID);
-
-        offset += playerUUID.getPreferredSize().height + 10;*/
-
 
         for(String message : activePlayerData.getPlayerNotes()){
             JTextPane label = createTextPane("<html><body style='font-size: 14px;color: white;font-family: sans-serif;'>" + message + "</body></html>", componentWidth);
