@@ -59,12 +59,29 @@ public class PlayerData {
         this.playerUUID = playerUUID;
     }
 
+    public void onCharacterFound(){
+        String characterUUID = PlayerInfoComponent.lastFoundCharID;
+        try {
+            NetworkUtility.getTypedNotes(NetworkUtility.NoteType.CHARACTER, characterUUID).thenAccept((notes) -> {
+                synchronized (playerNotes) {
+                    if(playerNotes.isEmpty()) {
+                        playerNotes.addAll(notes);
+                    } else {
+                        playerNotes.clear();
+                        playerNotes.addAll(notes);
+                    }
+                }
+            });
+        } catch (URISyntaxException | IOException | InterruptedException e) {
+            MetaOverlay.LOGGER.error(e.getMessage());
+            MetaOverlay.LOGGER.error(Arrays.toString(e.getStackTrace()));
+            MetaOverlay.LOGGER.info("Failed to fetch character notes from {} - {}", playerUUID, characterUUID);
+        }
+    }
+
     private void fetchPlayerNotes() {
         try {
-            NetworkUtility.NoteType type = NetworkUtility.NoteType.PLAYER;
-            if(!PlayerInfoComponent.lastFoundCharID.isEmpty())
-                type = NetworkUtility.NoteType.CHARACTER;
-            NetworkUtility.getTypedNotes(type, playerUUID).thenAccept((notes) -> {
+            NetworkUtility.getTypedNotes(NetworkUtility.NoteType.PLAYER, playerUUID).thenAccept((notes) -> {
                 synchronized (playerNotes) {
                     if(playerNotes.isEmpty()) {
                         playerNotes.addAll(notes);

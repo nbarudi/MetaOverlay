@@ -27,7 +27,7 @@ public class ChatHudMixin {
             ci.cancel();
             String characterUUID = messageContent.substring(20);
             MetaOverlay.LOGGER.info("Found character uuid: {} | {}", messageContent, characterUUID);
-            PlayerInfoComponent.lastFoundCharID = characterUUID;
+            PlayerInfoComponent.updateWithCharacterUUID(characterUUID);
         }
     }
 

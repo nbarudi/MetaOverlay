@@ -26,7 +26,7 @@ public class PlayerInfoComponent implements Renderable {
     public static boolean isRendered = true;
     public static String lastFoundCharID = "";
 
-    private PlayerData activePlayerData = null;
+    private static PlayerData activePlayerData = null;
 
     private List<JTextPane> labels = new ArrayList<>();
 
@@ -98,6 +98,11 @@ public class PlayerInfoComponent implements Renderable {
         textPane.setForeground(Color.WHITE);
         textPane.setSize(width, Short.MAX_VALUE); // Allow the text pane to grow vertically
         return textPane;
+    }
+
+    public static void updateWithCharacterUUID(String characterUUID){
+        lastFoundCharID = characterUUID;
+        new Thread(activePlayerData::onCharacterFound).start();
     }
 
 }
