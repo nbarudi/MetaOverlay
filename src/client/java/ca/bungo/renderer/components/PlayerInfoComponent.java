@@ -33,6 +33,9 @@ public class PlayerInfoComponent implements Renderable {
     public PlayerInfoComponent() {
         final int[] timeTracker = {0};
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if(!client.isWindowFocused()) {
+                isRendered = false;
+            }
             PlayerEntity player = PlayerUtility.getTargetPlayer(client, 30);
 
             if(player == null && timeTracker[0] >= ModConfigs.ACTIVE_PLAYER_SECONDS*20) { //Not looking at a player - Count down until hiding
