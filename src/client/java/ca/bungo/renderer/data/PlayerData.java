@@ -6,6 +6,7 @@ import ca.bungo.utility.NetworkUtility;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.network.ClientPlayerEntity;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -26,19 +27,13 @@ public class PlayerData {
 
         playerNotes = new ArrayList<>();
 
-        /*MinecraftClient.getInstance().execute(()->{
-            ChatScreen screen = new ChatScreen("");
-            Screen prevScreen = MinecraftClient.getInstance().currentScreen;
-            MinecraftClient.getInstance().setScreen(screen);
-            screen.sendMessage("/metaoverlayhelper charid " + this.playerUUID, true);
-            MinecraftClient.getInstance().setScreen(prevScreen);
-        });*/
 
-        ChatScreen screen = new ChatScreen("");
-        Screen prevScreen = MinecraftClient.getInstance().currentScreen;
-        MinecraftClient.getInstance().setScreen(screen);
-        screen.sendMessage("/metaoverlayhelper charid " + this.playerUUID, true);
-        MinecraftClient.getInstance().setScreen(prevScreen);
+        MinecraftClient.getInstance().execute(() -> {
+            ClientPlayerEntity player = MinecraftClient.getInstance().player;
+            if(player == null) return;
+            if(!player.networkHandler.getConnection().isOpen()) return;
+            player.networkHandler.sendChatCommand("metaoverlayhelper charid " + this.playerUUID);
+        });
 
         new Thread(this::fetchPlayerNotes).start();
     }
